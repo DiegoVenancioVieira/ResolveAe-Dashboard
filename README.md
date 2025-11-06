@@ -43,14 +43,14 @@ Dashboard profissional para monitoramento de chamados do GLPI, desenvolvido para
 
 ### 1️⃣ Clone ou baixe os arquivos
 
-Copie toda a pasta `glpi-dashboard` para o diretório web do seu servidor:
+Copie toda a pasta do projeto para o diretório web do seu servidor:
 
 ```bash
 # Apache (Ubuntu/Debian)
-sudo cp -r glpi-dashboard /var/www/html/
+sudo cp -r dashboard /var/www/html/
 
 # Ou para Nginx
-sudo cp -r glpi-dashboard /usr/share/nginx/html/
+sudo cp -r dashboard /usr/share/nginx/html/
 ```
 
 ### 2️⃣ Configure as permissões
@@ -67,11 +67,11 @@ Edite o arquivo `config/database.php` com os dados do seu banco GLPI:
 
 ```php
 return [
-    'host'     => '192.168.0.105',  // IP do servidor MySQL
-    'port'     => '3306',            // Porta do MySQL
-    'database' => 'dbase',           // Nome do banco do GLPI
-    'username' => 'dbase',           // Usuário do banco
-    'password' => 'dbase',           // Senha do banco
+    'host'     => 'localhost',     // IP ou hostname do servidor MySQL
+    'port'     => '3306',         // Porta do MySQL (padrão 3306)
+    'database' => 'glpi',         // Nome do banco do GLPI
+    'username' => 'glpi_user',    // Usuário do banco
+    'password' => '********',     // Senha do banco
     'charset'  => 'utf8mb4',
 ];
 ```
@@ -138,7 +138,7 @@ chromium-browser --noerrdialogs --disable-infobars --kiosk \
 ## 📁 Estrutura de Arquivos
 
 ```
-glpi-dashboard/
+dashboard/
 ├── index.php                 # Dashboard principal
 ├── api.php                   # API JSON para dados
 ├── test-connection.php       # Teste de conexão
@@ -237,8 +237,8 @@ Require valid-user
 
 4. **Usuário read-only** no MySQL:
 ```sql
-CREATE USER 'dashboard_user'@'localhost' IDENTIFIED BY 'senha_segura';
-GRANT SELECT ON dbase.* TO 'dashboard_user'@'localhost';
+CREATE USER 'glpi_dashboard'@'localhost' IDENTIFIED BY '********';
+GRANT SELECT ON glpi.* TO 'glpi_dashboard'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
