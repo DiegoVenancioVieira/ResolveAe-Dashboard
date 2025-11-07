@@ -151,6 +151,7 @@ function updateOverviewSlide(data) {
     updateNumber('novos', status.novos);
     updateNumber('atribuidos', status.atribuidos);
     updateNumber('pendentes', status.pendentes);
+    updateNumber('fechados', status.fechados);
 
     // Atualizar tabela de chamados abertos
     const openTicketsBody = document.getElementById('open-tickets-body');
@@ -247,6 +248,44 @@ function updateTeamSlide(data) {
         // Atualizar estrelas
         updateStars(satisfaction.estrelas || 0);
     }
+
+    // Tabela de resolvidos por técnico (30 dias)
+    const resolved30DaysTable = document.getElementById('resolved-technician-30-days-table');
+    const resolved30Days = data.resolved_by_technician_30_days;
+
+    if (resolved30Days && resolved30Days.length > 0) {
+        let html = '';
+        resolved30Days.forEach(tech => {
+            html += `
+                <tr>
+                    <td><strong>${tech.tecnico || 'Não atribuído'}</strong></td>
+                    <td class="highlight-green">${tech.resolvidos || 0}</td>
+                </tr>
+            `;
+        });
+        resolved30DaysTable.innerHTML = html;
+    } else {
+        resolved30DaysTable.innerHTML = '<tr><td colspan="2" class="loading">Nenhum dado disponível</td></tr>';
+    }
+
+    // Tabela de resolvidos por técnico (mês anterior)
+    const resolvedPrevMonthTable = document.getElementById('resolved-technician-previous-month-table');
+    const resolvedPrevMonth = data.resolved_by_technician_previous_month;
+
+    if (resolvedPrevMonth && resolvedPrevMonth.length > 0) {
+        let html = '';
+        resolvedPrevMonth.forEach(tech => {
+            html += `
+                <tr>
+                    <td><strong>${tech.tecnico || 'Não atribuído'}</strong></td>
+                    <td class="highlight-green">${tech.resolvidos || 0}</td>
+                </tr>
+            `;
+        });
+        resolvedPrevMonthTable.innerHTML = html;
+    } else {
+        resolvedPrevMonthTable.innerHTML = '<tr><td colspan="2" class="loading">Nenhum dado disponível</td></tr>';
+    }
 }
 
 /**
@@ -256,7 +295,7 @@ function updateCategoriesSlide(data) {
     // Lista de categorias
     const categoryList = document.getElementById('category-list');
     const categories = data.tickets_category;
-    
+
     if (categories && categories.length > 0) {
         let html = '';
         categories.forEach(cat => {
@@ -271,14 +310,14 @@ function updateCategoriesSlide(data) {
     } else {
         categoryList.innerHTML = '<p class="no-data">Nenhuma categoria encontrada</p>';
     }
-    
+
     // Comparação diária
     const daily = data.daily_comparison;
     if (daily) {
         document.getElementById('tickets-today').textContent = daily.hoje || '0';
         document.getElementById('tickets-week').textContent = daily.ultima_semana || '0';
         document.getElementById('tickets-month').textContent = daily.ultimo_mes || '0';
-        
+
         // Tendência
         const trendElement = document.getElementById('trend-today');
         if (daily.hoje > daily.ontem) {
@@ -449,14 +488,13 @@ function updateCharts(data) {
                                 }]
                             },
                             options: {
-                                responsive: false,
+                                responsive: true,
                                 maintainAspectRatio: false,                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 15,
-                                font: {
-                                    size: 12
+                                                        legend: {
+                                                            position: 'right',
+                                                            labels: {
+                                                                padding: 15,
+                                                                font: {                                    size: 12
                                 }
                             }
                         },
@@ -523,7 +561,10 @@ function updateCharts(data) {
                                 color: '#334155'
                             },
                             ticks: {
-                                color: '#94a3b8'
+                                color: '#94a3b8',
+                                font: {
+                                    size: 20
+                                }
                             }
                         },
                         y: {
@@ -533,7 +574,7 @@ function updateCharts(data) {
                             ticks: {
                                 color: '#94a3b8',
                                 font: {
-                                    size: 12
+                                    size: 20
                                 }
                             }
                         }
@@ -604,6 +645,9 @@ function updateCharts(data) {
                             },
                             ticks: {
                                 color: '#94a3b8',
+                                font: {
+                                    size: 20
+                                },
                                 maxRotation: 45,
                                 minRotation: 45
                             }
@@ -614,7 +658,10 @@ function updateCharts(data) {
                                 color: '#334155'
                             },
                             ticks: {
-                                color: '#94a3b8'
+                                color: '#94a3b8',
+                                font: {
+                                    size: 20
+                                }
                             }
                         }
                     }

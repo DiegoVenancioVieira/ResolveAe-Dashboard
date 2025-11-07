@@ -71,7 +71,9 @@ class GLPIMetrics {
                 COUNT(t.id) as total
             FROM glpi_tickets t
             LEFT JOIN glpi_itilcategories ic ON t.itilcategories_id = ic.id
-            WHERE t.status IN (1,2,3) AND t.is_deleted = 0
+            WHERE t.is_deleted = 0
+                AND MONTH(t.date_creation) = MONTH(CURRENT_DATE())
+                AND YEAR(t.date_creation) = YEAR(CURRENT_DATE())
             GROUP BY t.itilcategories_id, ic.name
             ORDER BY total DESC
             LIMIT 10
@@ -159,7 +161,7 @@ class GLPIMetrics {
             WHERE status IN (5,6) 
                 AND is_deleted = 0
                 AND solvedate IS NOT NULL
-                AND date_creation >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                AND solvedate >= DATE_SUB(NOW(), INTERVAL 30 DAY)
         ";
         
         $result = $this->db->query($sql);
@@ -358,7 +360,60 @@ class GLPIMetrics {
             'daily_comparison' => $this->getDailyComparison(),
             'overdue_tickets' => $this->getOverdueTickets(),
             'satisfaction' => $this->getSatisfactionStats(),
-            'open_tickets_details' => $this->getOpenTicketsDetails()
+            'open_tickets_details' => $this->getOpenTicketsDetails(),
+            'resolved_by_technician_30_days' => $this->getResolvedByTechnicianLast30Days(),
+            'resolved_by_technician_previous_month' => $this->getResolvedByTechnicianPreviousMonth()
         ];
+    }
+
+    /**
+     * Obtém o ranking de técnicos por chamados resolvidos nos últimos 30 dias
+     */
+    public function getResolvedByTechnicianLast30Days() {
+        $sql = "
+            SELECT
+                CONCAT(u.firstname, ' ', u.realname) as tecnico,
+                COUNT(DISTINCT t.id) as resolvidos
+            FROM glpi_tickets t
+            INNER JOIN glpi_tickets_users tu ON t.id = tu.tickets_id
+            INNER JOIN glpi_users u ON tu.users_id = u.id
+            WHERE tu.type = 2 -- Técnico atribuído
+                AND t.is_deleted = 0
+                AND t.status = 5 -- Resolvido
+                AND t.solvedate >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            GROUP BY u.id, u.firstname, u.realname
+            HAVING resolvidos > 0
+            ORDER BY resolvidos DESC
+            LIMIT 15
+        ";
+
+        $result = $this->db->query($sql);
+        return $result ? $result->fetchAll() : [];
+    }
+
+    /**
+     * Obtém o ranking de técnicos por chamados resolvidos no mês anterior
+     */
+    public function getResolvedByTechnicianPreviousMonth() {
+        $sql = "
+            SELECT
+                CONCAT(u.firstname, ' ', u.realname) as tecnico,
+                COUNT(DISTINCT t.id) as resolvidos
+            FROM glpi_tickets t
+            INNER JOIN glpi_tickets_users tu ON t.id = tu.tickets_id
+            INNER JOIN glpi_users u ON tu.users_id = u.id
+            WHERE tu.type = 2 -- Técnico atribuído
+                AND t.is_deleted = 0
+                AND t.status = 5 -- Resolvido
+                AND MONTH(t.solvedate) = MONTH(CURRENT_DATE() - INTERVAL 1 MONTH)
+                AND YEAR(t.solvedate) = YEAR(CURRENT_DATE() - INTERVAL 1 MONTH)
+            GROUP BY u.id, u.firstname, u.realname
+            HAVING resolvidos > 0
+            ORDER BY resolvidos DESC
+            LIMIT 15
+        ";
+
+        $result = $this->db->query($sql);
+        return $result ? $result->fetchAll() : [];
     }
 }

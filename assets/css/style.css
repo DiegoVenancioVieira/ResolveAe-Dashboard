@@ -217,6 +217,11 @@ body {
     color: var(--warning-color);
 }
 
+.stat-icon.closed {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+}
+
 .stat-content {
     flex: 1;
 }
@@ -237,11 +242,20 @@ body {
 
 /* Gráficos */
 .chart-container {
-    background: var(--card-bg);
-    border-radius: 12px;
+    position: relative;
     padding: 1.5rem;
-    margin-bottom: 2rem;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
     border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+#categoryCanvas {
+    flex-grow: 1;
+    min-height: 0;
 }
 
 .charts-grid {
@@ -257,7 +271,7 @@ body {
     border-radius: 12px;
     padding: 1.5rem;
     border: 1px solid var(--border-color);
-    height: 500px;
+    height: 700px;
     display: flex;
     flex-direction: column;
 }
@@ -265,7 +279,7 @@ body {
 .entity-chart-container canvas,
 .monthly-chart-container canvas {
     flex: 1;
-    max-height: 420px;
+    max-height: 620px;
 }
 
 .chart-container h3,
@@ -283,13 +297,15 @@ body {
 /* Tabela de Chamados Abertos */
 .open-tickets-table-container {
     overflow-x: auto;
-    max-height: 400px;
+    max-height: 350px;
     overflow-y: auto;
+    width: 100%;
 }
 
 .open-tickets-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .open-tickets-table thead {
@@ -368,7 +384,7 @@ body {
     background: var(--card-bg);
     border-radius: 12px;
     padding: 1.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     border: 1px solid var(--border-color);
     overflow-x: auto;
 }
@@ -477,6 +493,7 @@ body {
     border-radius: 12px;
     padding: 1.5rem;
     border: 1px solid var(--border-color);
+    margin-bottom: 1rem;
 }
 
 .satisfaction-section h3 {
@@ -523,7 +540,7 @@ body {
     border-radius: 12px;
     padding: 1.5rem;
     border: 1px solid var(--border-color);
-    height: 400px;
+    height: 450px;
 }
 
 .category-list {
@@ -532,7 +549,7 @@ body {
     padding: 1.5rem;
     border: 1px solid var(--border-color);
     overflow-y: auto;
-    max-height: 400px;
+    max-height: 450px;
 }
 
 .category-item {

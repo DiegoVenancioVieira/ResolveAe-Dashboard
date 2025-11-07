@@ -71,6 +71,16 @@
                         <div class="stat-label">Atribuídos</div>
                     </div>
                 </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon closed">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="fechados">--</div>
+                        <div class="stat-label">Chamados Fechados</div>
+                    </div>
+                </div>
             </div>
 
             <!-- Tabela de Chamados Abertos -->
@@ -170,12 +180,48 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Tabela de Resolvidos por Técnico (30 dias) -->
+            <div class="team-performance">
+                <h3>Resolvidos por Técnico (Últimos 30 Dias)</h3>
+                <table class="performance-table">
+                    <thead>
+                        <tr>
+                            <th>Técnico</th>
+                            <th>Chamados Resolvidos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resolved-technician-30-days-table">
+                        <tr>
+                            <td colspan="2" class="loading">Carregando dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tabela de Resolvidos por Técnico (Mês Anterior) -->
+            <div class="team-performance">
+                <h3>Resolvidos por Técnico (Mês Anterior)</h3>
+                <table class="performance-table">
+                    <thead>
+                        <tr>
+                            <th>Técnico</th>
+                            <th>Chamados Resolvidos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resolved-technician-previous-month-table">
+                        <tr>
+                            <td colspan="2" class="loading">Carregando dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Slide 3: Análise por Categoria -->
         <div class="slide" id="slide-categories">
             <h2 class="slide-title">Análise por Categoria</h2>
-            
+
             <!-- Top Categorias -->
             <div class="categories-container">
                 <div class="category-chart">
