@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Verificar Slide 5 - Consumíveis</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .result { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; }
+        .success { color: #2ecc71; font-weight: bold; }
+        .error { color: #e74c3c; font-weight: bold; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 4px; overflow-x: auto; }
+        iframe { width: 100%; height: 600px; border: 2px solid #3498db; border-radius: 8px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Verificação do Slide 5 - Consumíveis</h1>
+
+    <div class="result">
+        <h2>Teste: Carregar index.php dentro de um iframe</h2>
+        <p>Isso força o navegador a buscar a versão mais recente do HTML.</p>
+        <button onclick="checkIframe()" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Verificar Elementos no Iframe
+        </button>
+        <div id="iframe-result"></div>
+    </div>
+
+    <iframe id="dashboard-iframe" src="index.php?nocache=<?php echo time(); ?>"></iframe>
+
+    <script>
+        function checkIframe() {
+            const resultDiv = document.getElementById('iframe-result');
+            const iframe = document.getElementById('dashboard-iframe');
+
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+                const ids = [
+                    'total-consumable-items',
+                    'total-consumable-units',
+                    'low-stock-items',
+                    'out-of-stock-items'
+                ];
+
+                let html = '<h3>Resultado da Verificação:</h3><ul>';
+                let foundCount = 0;
+
+                ids.forEach(id => {
+                    const element = iframeDoc.getElementById(id);
+                    if (element) {
+                        html += `<li class="success">✅ ${id} - ENCONTRADO (valor atual: "${element.textContent}")</li>`;
+                        foundCount++;
+                    } else {
+                        html += `<li class="error">❌ ${id} - NÃO ENCONTRADO</li>`;
+                    }
+                });
+
+                html += '</ul>';
+
+                if (foundCount === 4) {
+                    html += '<p class="success">🎉 TODOS OS ELEMENTOS FORAM ENCONTRADOS!</p>';
+                    html += '<p>O problema é cache do navegador. Pressione Ctrl+Shift+R no dashboard principal.</p>';
+                } else {
+                    html += '<p class="error">⚠️ Alguns elementos não foram encontrados. Pode ser problema de cache do servidor PHP.</p>';
+                }
+
+                // Verificar se o slide existe
+                const slide = iframeDoc.getElementById('slide-consumables');
+                if (slide) {
+                    html += '<p class="success">✅ Slide #slide-consumables existe no HTML</p>';
+                } else {
+                    html += '<p class="error">❌ Slide #slide-consumables NÃO existe no HTML</p>';
+                }
+
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Erro ao acessar iframe: ${error.message}</p>`;
+            }
+        }
+
+        // Aguardar o iframe carregar
+        document.getElementById('dashboard-iframe').addEventListener('load', function() {
+            setTimeout(() => {
+                checkIframe();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,10 +1,10 @@
 <?php
 return [
-    'host'     => '192.168.0.105',
+    'host'     => 'localhost',
     'port'     => '3306',
-    'database' => 'dbase',
-    'username' => 'dbase',
-    'password' => 'dbase',
+    'database' => 'glpi_db',
+    'username' => 'glpi_user',
+    'password' => 'password',
     'charset'  => 'utf8mb4',
     'options'  => [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,

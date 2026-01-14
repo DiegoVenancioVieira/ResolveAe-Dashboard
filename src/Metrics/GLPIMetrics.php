@@ -3,7 +3,7 @@
  * Classe para coletar métricas do GLPI
  */
 
-require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/../Database.php';
 
 class GLPIMetrics {
     private $db;
@@ -22,8 +22,8 @@ class GLPIMetrics {
                 SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as novos,
                 SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) as atribuidos,
                 SUM(CASE WHEN status = 3 THEN 1 ELSE 0 END) as planejados,
-                SUM(CASE WHEN status = 4 OR status = 5 THEN 1 ELSE 0 END) as pendentes,
-                SUM(CASE WHEN status = 6 THEN 1 ELSE 0 END) as resolvidos,
+                SUM(CASE WHEN status = 4 THEN 1 ELSE 0 END) as pendentes,
+                SUM(CASE WHEN status = 5 THEN 1 ELSE 0 END) as resolvidos,
                 SUM(CASE WHEN status = 6 THEN 1 ELSE 0 END) as fechados,
                 SUM(CASE WHEN status IN (1,2,3) THEN 1 ELSE 0 END) as total_abertos
             FROM glpi_tickets
@@ -117,7 +117,7 @@ class GLPIMetrics {
                     COUNT(id) as total
                 FROM glpi_tickets
                 WHERE is_deleted = 0 AND date_creation >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
-                GROUP BY YEAR(date_creation), MONTH(date_creation)
+                GROUP BY DATE_FORMAT(date_creation, '%Y-%m')
             ) sub
             ORDER BY mes ASC
         ";
@@ -352,6 +352,10 @@ class GLPIMetrics {
      * Obtém todas as métricas de uma vez
      */
     public function getAllMetrics() {
+        // Importar classe de métricas de consumíveis
+        require_once __DIR__ . '/ConsumablesMetrics.php';
+        $consumablesMetrics = new \Dashboard\Metrics\ConsumablesMetrics();
+
         return [
             'timestamp' => date('Y-m-d H:i:s'),
             'tickets_status' => $this->getTicketsByStatus(),
@@ -369,7 +373,8 @@ class GLPIMetrics {
             'resolved_by_technician_30_days' => $this->getResolvedByTechnicianLast30Days(),
             'resolved_by_technician_previous_month' => $this->getResolvedByTechnicianPreviousMonth(),
             'period_last_30_days' => $this->getPeriodLast30Days(),
-            'period_previous_month' => $this->getPreviousMonthName()
+            'period_previous_month' => $this->getPreviousMonthName(),
+            'consumables_data' => $consumablesMetrics->getAllConsumablesMetrics()
         ];
     }
 

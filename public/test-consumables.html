@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste Consumíveis</title>
+</head>
+<body>
+    <h1>Teste de Dados de Consumíveis</h1>
+    <div id="result"></div>
+
+    <script>
+        fetch('api.php')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Dados recebidos:', data);
+
+                const resultDiv = document.getElementById('result');
+
+                if (data.consumables_data) {
+                    const summary = data.consumables_data.summary;
+                    resultDiv.innerHTML = `
+                        <h2>Resumo de Consumíveis:</h2>
+                        <ul>
+                            <li>Total de Itens: ${summary.total_items}</li>
+                            <li>Unidades em Estoque: ${summary.available_units}</li>
+                            <li>Alertas: ${summary.low_stock_count}</li>
+                            <li>Em Falta: ${summary.out_of_stock_count}</li>
+                        </ul>
+                        <h3>Alertas:</h3>
+                        <pre>${JSON.stringify(data.consumables_data.low_stock_alerts, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<p style="color: red;">Dados de consumíveis não encontrados!</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                document.getElementById('result').innerHTML = `<p style="color: red;">Erro: ${error.message}</p>`;
+            });
+    </script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+
+.gemini/
+gha-creds-*.json
+config/database.php
+src/Config/database.php

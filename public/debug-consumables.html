@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Consumíveis - Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .section { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .success { color: #2ecc71; }
+        .error { color: #e74c3c; }
+        .warning { color: #f39c12; }
+        pre { background: #f0f0f0; padding: 15px; border-radius: 4px; overflow-x: auto; }
+        button { padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #2980b9; }
+        .status { font-weight: bold; padding: 5px 10px; border-radius: 4px; display: inline-block; }
+        .status.ok { background: #d4edda; color: #155724; }
+        .status.fail { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug - Slide de Consumíveis</h1>
+
+    <div class="section">
+        <h2>1. Teste de API</h2>
+        <button onclick="testAPI()">Testar API</button>
+        <div id="api-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>2. Verificação de Elementos HTML</h2>
+        <button onclick="checkElements()">Verificar Elementos</button>
+        <div id="elements-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>3. Teste de Atualização Manual</h2>
+        <button onclick="manualUpdate()">Atualizar Manualmente</button>
+        <div id="manual-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>4. Console Logs</h2>
+        <div id="console-logs" style="max-height: 300px; overflow-y: auto; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 12px;"></div>
+    </div>
+
+    <script>
+        // Interceptar console.log
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        const logsDiv = document.getElementById('console-logs');
+
+        function addLog(type, message) {
+            const time = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#e74c3c' : type === 'warn' ? '#f39c12' : '#2ecc71';
+            logsDiv.innerHTML += `<div style="color: ${color};">[${time}] ${message}</div>`;
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            addLog('log', args.join(' '));
+            originalLog.apply(console, args);
+        };
+
+        console.warn = function(...args) {
+            addLog('warn', '⚠️ ' + args.join(' '));
+            originalWarn.apply(console, args);
+        };
+
+        console.error = function(...args) {
+            addLog('error', '❌ ' + args.join(' '));
+            originalError.apply(console, args);
+        };
+
+        // Teste 1: API
+        async function testAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<p>⏳ Testando API...</p>';
+
+            try {
+                const response = await fetch('api.php');
+                const data = await response.json();
+
+                console.log('API Response:', data);
+
+                if (data.consumables_data) {
+                    const summary = data.consumables_data.summary;
+                    resultDiv.innerHTML = `
+                        <p><span class="status ok">✅ API OK</span></p>
+                        <h3>Dados Recebidos:</h3>
+                        <ul>
+                            <li>Total de Itens: <strong>${summary.total_items}</strong></li>
+                            <li>Unidades Disponíveis: <strong>${summary.available_units}</strong></li>
+                            <li>Alertas: <strong>${summary.low_stock_count}</strong></li>
+                            <li>Em Falta: <strong>${summary.out_of_stock_count}</strong></li>
+                        </ul>
+                        <h3>Alertas (${data.consumables_data.low_stock_alerts.length}):</h3>
+                        <pre>${JSON.stringify(data.consumables_data.low_stock_alerts.slice(0, 3), null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<p><span class="status fail">❌ consumables_data não encontrado</span></p>';
+                }
+            } catch (error) {
+                console.error('Erro na API:', error);
+                resultDiv.innerHTML = `<p class="error">❌ Erro: ${error.message}</p>`;
+            }
+        }
+
+        // Teste 2: Verificar Elementos
+        function checkElements() {
+            const resultDiv = document.getElementById('elements-result');
+            const ids = [
+                'total-consumable-items',
+                'total-consumable-units',
+                'low-stock-items',
+                'out-of-stock-items'
+            ];
+
+            let html = '<h3>Verificação de IDs:</h3><ul>';
+
+            ids.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    html += `<li class="success">✅ <code>${id}</code> - ENCONTRADO (valor: "${element.textContent}")</li>`;
+                    console.log(`Elemento ${id} encontrado`);
+                } else {
+                    html += `<li class="error">❌ <code>${id}</code> - NÃO ENCONTRADO</li>`;
+                    console.warn(`Elemento ${id} NÃO encontrado`);
+                }
+            });
+
+            html += '</ul>';
+            resultDiv.innerHTML = html;
+        }
+
+        // Teste 3: Atualização Manual
+        async function manualUpdate() {
+            const resultDiv = document.getElementById('manual-result');
+            resultDiv.innerHTML = '<p>⏳ Atualizando...</p>';
+
+            try {
+                const response = await fetch('api.php');
+                const data = await response.json();
+
+                if (!data.consumables_data) {
+                    throw new Error('consumables_data não encontrado');
+                }
+
+                const summary = data.consumables_data.summary;
+
+                // Atualizar elementos diretamente
+                const updates = [
+                    { id: 'total-consumable-items', value: summary.total_items },
+                    { id: 'total-consumable-units', value: summary.available_units },
+                    { id: 'low-stock-items', value: summary.low_stock_count },
+                    { id: 'out-of-stock-items', value: summary.out_of_stock_count }
+                ];
+
+                let success = 0;
+                let failed = 0;
+
+                updates.forEach(({ id, value }) => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = value;
+                        console.log(`✅ ${id} = ${value}`);
+                        success++;
+                    } else {
+                        console.error(`❌ Elemento ${id} não encontrado!`);
+                        failed++;
+                    }
+                });
+
+                resultDiv.innerHTML = `
+                    <p class="success">✅ Atualização concluída!</p>
+                    <p>Sucesso: ${success} | Falha: ${failed}</p>
+                `;
+            } catch (error) {
+                console.error('Erro na atualização:', error);
+                resultDiv.innerHTML = `<p class="error">❌ Erro: ${error.message}</p>`;
+            }
+        }
+
+        // Auto-executar ao carregar
+        window.addEventListener('load', () => {
+            console.log('🚀 Debug page carregada');
+            setTimeout(() => {
+                testAPI();
+                checkElements();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
