@@ -1,0 +1,29 @@
+# Dependency and vendor artifacts
+vendor/
+node_modules/
+
+# Git and editor artifacts
+.git/
+.gitattributes
+.gitignore
+.vscode/
+.idea/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tests and docs (not needed in image)
+tests/
+OLD/
+README.md
+
+# Local config/secrets
+config/database.php
+.env

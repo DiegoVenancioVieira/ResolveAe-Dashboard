@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  # Dashboard app
+  app:
+    container_name: resolveae-dashboard
+    build: .
+    restart: always
+    ports:
+      - "8081:80"
+    volumes:
+      - ./:/var/www/html
+    environment:
+      - TZ=America/Sao_Paulo
+    depends_on:
+      - db
+
+  # "Fake GLPI" database
+  db:
+    container_name: resolveae-db
+    image: mariadb:10.6
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: glpi_db
+      MYSQL_USER: glpi_user
+      MYSQL_PASSWORD: glpi_password
+    volumes:
+      # Loads init.sql on first startup
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3307:3306" # Alternative port for local tools
